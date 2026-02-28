@@ -132,14 +132,52 @@ padding:10px;
 
 <div id="home" class="screen">
 
-<h2>홈</h2>
+<h2>🏠 홈</h2>
+
+
+<h3>🔥 인기게시글</h3>
+
+<div id="bestPosts">
+
+아직 인기글 없음
+
+</div>
+
+
+<h3>🆕 최신글</h3>
+
+
+<select id="jobFilter" onchange="drawPosts()">
+
+<option>전체</option>
+
+<option>초등학생</option>
+<option>중학생</option>
+<option>고등학생</option>
+<option>대학생</option>
+<option>직장인</option>
+<option>결혼/육아</option>
+<option>은퇴</option>
+<option>취준생</option>
+
+</select>
+
+
 
 <div id="posts">
 
 </div>
 
-</div>
 
+<br><br><br>
+
+
+<button onclick="help()">
+❓ 도움말
+</button>
+
+
+</div>
 
 
 <!-- 글쓰기 -->
@@ -336,7 +374,49 @@ showHome()
 
 
 function drawPosts(){
+  
+function help(){
 
+alert(
+
+`게시판 설명
+
+일반꿀팁
+누구나 이용가능
+
+개꿀팁
+라벤더 이상
+
+찐꿀팁
+유채 이상
+
+
+등급
+
+아카시아
+일반
+
+라벤더
+개꿀팁 보기
+
+로즈마리
+개꿀팁 쓰기
+
+유채
+찐꿀팁 보기
+
+밤
+찐꿀팁 쓰기
+
+두리안
+의뢰
+
+클로버
+판매`
+
+)
+
+  }
 let html=""
 
 for(let p of posts){
