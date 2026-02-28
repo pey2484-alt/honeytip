@@ -4,276 +4,148 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>한꿀팁 - 꿀 한스푼의 지혜</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .bg-honey { background-color: #FFD700; }
-        .bg-stripes { background: repeating-linear-gradient(45deg, #FFD700, #FFD700 10px, #000 10px, #000 12px); }
-        .honey-border { border: 3px solid black; }
         .hidden { display: none; }
-        /* 꿀통 애니메이션 */
-        .honey-level { transition: height 0.5s ease-in-out; background-color: #FFA500; }
+        .honey-border { border: 4px solid black; }
     </style>
 </head>
 <body class="bg-honey min-h-screen font-sans text-black">
 
     <div id="page-login" class="flex flex-col items-center justify-center min-h-screen p-6">
         <div class="text-center mb-6">
-            <div class="flex items-center justify-center gap-2 mb-2">
-                <h1 class="text-4xl font-black italic">한꿀팁</h1>
-                <span class="text-5xl">🍯</span>
-            </div>
-            <p class="text-sm font-bold">당신만의 꿀팁을 나누세요!</p>
+            <h1 class="text-4xl font-black italic">한꿀팁 🍯</h1>
+            <p class="text-sm font-bold mt-2 font-mono">"한꿀팁 한다~"</p>
         </div>
 
         <div class="w-full max-w-sm space-y-3 bg-white p-6 rounded-3xl honey-border shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
             <input type="text" id="user-id" placeholder="아이디" class="w-full p-3 border-2 border-black rounded-xl">
-            <input type="password" id="user-pw" placeholder="패스워드" class="w-full p-3 border-2 border-black rounded-xl">
+            <input type="password" id="user-pw" placeholder="비밀번호(6자 이상)" class="w-full p-3 border-2 border-black rounded-xl">
             
             <div class="py-2">
-                <label class="block font-black text-sm mb-2">당신의 직업을 선택하세요:</label>
+                <label class="block font-black text-sm mb-2">직업을 선택하세요:</label>
                 <select id="user-job" class="w-full p-3 border-2 border-black rounded-xl bg-yellow-50 font-bold">
-    <option value="초등학생">초등학생</option>
-    <option value="중학생">중학생</option>
-    <option value="고등학생">고등학생</option>
-    <option value="대학생">대학생</option>
-    <option value="직장인">직장인</option>
-    <option value="결혼/육아">결혼/육아</option>
-    <option value="취준생">취준생</option>
-    <option value="은퇴 준비/후">은퇴 준비/후</option>
-</select>
-
-                <p class="text-[10px] mt-2 text-gray-500 font-bold">* 직업에 따라 게시글이 추천됩니다.</p>
+                    <option value="초등학생">초등학생</option>
+                    <option value="중학생">중학생</option>
+                    <option value="고등학생">고등학생</option>
+                    <option value="대학생">대학생</option>
+                    <option value="직장인">직장인</option>
+                    <option value="결혼/육아">결혼/육아</option>
+                    <option value="취준생">취준생</option>
+                    <option value="은퇴 준비/후">은퇴 준비/후</option>
+                </select>
             </div>
 
             <button onclick="handleLogin()" class="w-full bg-black text-white p-4 rounded-2xl font-black text-lg active:scale-95 transition">로그인하기</button>
-            <button class="w-full border-2 border-black p-3 rounded-2xl font-bold bg-white">회원가입하기</button>
+            <button onclick="handleSignUp()" class="w-full border-2 border-black p-3 rounded-2xl font-bold bg-white active:scale-95 transition">회원가입하기</button>
         </div>
     </div>
 
     <div id="main-app" class="hidden">
-        
         <header class="bg-white border-b-4 border-black p-4 flex justify-between items-center sticky top-0 z-50">
-            <div class="flex items-center gap-1 font-black italic text-xl">
-                🍯 한꿀팁
-            </div>
-            <div id="user-rank-display" class="flex items-center gap-1 font-bold text-sm bg-honey px-3 py-1 rounded-full border-2 border-black">
-                🌸 아카시아
-            </div>
+            <span class="font-black italic text-xl">🍯 한꿀팁</span>
+            <span id="user-rank-display" class="font-bold text-sm bg-honey px-3 py-1 rounded-full border-2 border-black">🌸 아카시아</span>
         </header>
 
         <div id="page-home" class="p-4 space-y-6">
-            <section>
-                <h2 class="text-xl font-black mb-3 flex items-center gap-2">🔥 인기게시글 <span class="text-xs font-normal opacity-60">TOP 10</span></h2>
-                <div class="bg-white border-4 border-black rounded-3xl p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                    <div class="space-y-3" id="popular-posts">
-                        <div class="flex justify-between font-bold border-b border-gray-100 pb-1">
-                            <span>1. 꿀벌처럼 퇴근하는 법</span>
-                            <span>👍 152</span>
-                        </div>
-                    </div>
+            <h2 class="text-xl font-black italic">✨ <span id="display-job">직업</span> 맞춤 꿀팁</h2>
+            <div id="post-list" class="space-y-4 pb-24">
                 </div>
-            </section>
-
-            <section>
-                <div class="flex justify-between items-end mb-3">
-                    <h2 class="text-xl font-black italic">✨ 최신순</h2>
-                    <div class="text-sm font-black border-b-2 border-black pb-1 cursor-pointer">
-                        <span id="display-job">직장인</span> ▼
-                    </div>
-                </div>
-                <div id="post-list" class="space-y-4">
-                    <div class="bg-white border-4 border-black rounded-3xl p-5 relative overflow-hidden">
-                        <div class="flex justify-between items-start mb-2">
-                            <h3 class="font-black text-lg">점심 메뉴 고르기 꿀팁</h3>
-                            <button class="bg-black text-white text-[10px] px-3 py-1 rounded-full font-bold">구독</button>
-                        </div>
-                        <p class="text-sm text-gray-700 mb-4 line-clamp-2">이 방법이면 매일 점심 고민 안 해도 됩니다...</p>
-                        <div class="flex justify-between items-center text-xs font-bold">
-                            <span class="flex items-center gap-1">🪻 꿀벌1호</span>
-                            <div class="flex gap-2"><span>💬 12</span> <span>❤️ 45</span></div>
-                        </div>
-                    </div>
-                </div>
-            </section>
         </div>
 
-        <div id="page-attendance" class="hidden p-6 text-center">
-            <h2 class="text-2xl font-black mb-6 italic italic">꿀통 채우기 🍯</h2>
-            <div class="relative w-40 h-52 mx-auto bg-white border-4 border-black rounded-b-[40px] rounded-t-[10px] overflow-hidden mb-6 shadow-xl">
-                <div id="honey-fill" class="absolute bottom-0 w-full honey-level" style="height: 20%;"></div>
-                <div class="absolute inset-0 flex items-center justify-center font-black text-2xl" id="attendance-count">2 / 10</div>
-            </div>
-            <div class="grid grid-cols-5 gap-2 mb-8" id="stamp-grid">
-                </div>
-            <button onclick="checkAttendance()" class="bg-black text-white w-full py-4 rounded-2xl font-black text-xl shadow-[0_4px_0_0_rgba(100,100,100,1)] active:translate-y-1 active:shadow-none transition-all">
-                오늘의 한숟갈 🥄
-            </button>
-        </div>
-
-        <div id="page-board" class="hidden p-4 space-y-4">
-            <h2 class="text-2xl font-black italic mb-4">꿀팁 창고</h2>
-            <div class="bg-white p-5 border-4 border-black rounded-3xl flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl font-white">⚪</span>
-                    <span class="font-black text-lg">일반 꿀팁</span>
-                </div>
-                <span class="text-xl">▶</span>
-            </div>
-            <div class="bg-gray-200 p-5 border-4 border-black rounded-3xl flex items-center justify-between opacity-80">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">🐶</span>
-                    <span class="font-black text-lg">개꿀팁 (🔒)</span>
-                </div>
-                <span class="text-xl">🔒</span>
-            </div>
-            <div class="bg-gray-200 p-5 border-4 border-black rounded-3xl flex items-center justify-between opacity-80">
-                <div class="flex items-center gap-3">
-                    <span class="text-3xl">👍</span>
-                    <span class="font-black text-lg">찐꿀팁 (🔒)</span>
-                </div>
-                <span class="text-xl">🔒</span>
-            </div>
-        </div>
-
-        <nav class="fixed bottom-0 w-full bg-white border-t-4 border-black h-20 flex justify-around items-center px-2 z-50">
-            <button onclick="showPage('home')" class="flex flex-col items-center gap-1">
-                <span class="text-2xl">🏠</span><span class="text-[10px] font-black">홈</span>
-            </button>
-            <button onclick="showPage('board')" class="flex flex-col items-center gap-1">
-                <span class="text-2xl">📋</span><span class="text-[10px] font-black">게시판</span>
-            </button>
-            <button class="bg-black text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl pb-1">
-                ➕
-            </button>
-            <button onclick="showPage('attendance')" class="flex flex-col items-center gap-1">
-                <span class="text-2xl">🍯</span><span class="text-[10px] font-black">출석체크</span>
-            </button>
-            <button class="flex flex-col items-center gap-1">
-                <span class="text-2xl">👤</span><span class="text-[10px] font-black">내정보</span>
-            </button>
+        <nav class="fixed bottom-0 w-full bg-white border-t-4 border-black h-20 flex justify-around items-center z-50">
+            <button onclick="location.reload()" class="flex flex-col items-center"><span class="text-2xl">🏠</span></button>
+            <button onclick="alert('게시판 준비 중!')" class="flex flex-col items-center"><span class="text-2xl">📋</span></button>
+            <button onclick="firebase.auth().signOut().then(()=>location.reload())" class="flex flex-col items-center"><span class="text-2xl">🚪</span><span class="text-[8px] font-bold">로그아웃</span></button>
         </nav>
     </div>
 
-    <button id="help-btn" class="hidden fixed bottom-24 right-6 w-12 h-12 bg-white border-4 border-black rounded-full font-black text-xl shadow-lg z-50">?</button>
-
     <script>
-        // --- 앱 상태 관리 ---
-        let userData = {
-    id: '',
-    job: '',
-    attendance: 2,
-    rank: '아카시아',
-    rankIcon: '🌸'
-};
+        // 보내주신 실제 설정값을 적용했습니다!
+        const firebaseConfig = {
+          apiKey: "AIzaSyCFsX__LeM3jGJ3pXsab_0rxJ5C1weoRHA",
+          authDomain: "honeytip-badb0.firebaseapp.com",
+          projectId: "honeytip-badb0",
+          storageBucket: "honeytip-badb0.firebasestorage.app",
+          messagingSenderId: "601225679455",
+          appId: "1:601225679455:web:a688bccc656bf1474681ea",
+          measurementId: "G-GGY0VYSWDB"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-// 연습용 데이터: 각 직업에 맞는 꿀팁들입니다.
-const allPosts = [
-    { title: "슬라임 안 굳게 보관하는 법", job: "초등학생", author: "꿀벌1", likes: 12 },
-    { title: "중간고사 벼락치기 암기법", job: "중학생", author: "공부왕", likes: 25 },
-    { title: "학종 생기부 관리 꿀팁", job: "고등학생", author: "입시생", likes: 88 },
-    { title: "공강 시간 알차게 쓰는 법", job: "대학생", author: "복학생", likes: 45 },
-    { title: "연말정산 세금 환급 많이 받는 법", job: "직장인", author: "김대리", likes: 120 },
-    { title: "아이 반찬 투정 없애는 레시피", job: "결혼/육아", author: "육아맘", likes: 210 },
-    { title: "자소서 소제목 한 눈에 띄게 쓰는 법", job: "취준생", author: "합격가자", likes: 95 },
-    { title: "은퇴 후 소일거리 추천 리스트", job: "은퇴 준비/후", author: "은퇴꿀", likes: 67 }
-];
+        let currentUser = null;
+        const rankIcons = { 아카시아: '🌸', 라벤더: '🪻', 로즈마리: '🌿', 유채: '🌼' };
 
+        // 가입 기능
+        async function handleSignUp() {
+            const id = document.getElementById('user-id').value;
+            const pw = document.getElementById('user-pw').value;
+            const job = document.getElementById('user-job').value;
 
-        // --- 페이지 전환 함수 ---
-        function showPage(pageId) {
-            const pages = ['page-home', 'page-attendance', 'page-board'];
-            pages.forEach(p => document.getElementById(p).classList.add('hidden'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
+            if (!id || pw.length < 6) { alert("아이디 입력 및 비밀번호 6자 이상 필수!"); return; }
+
+            try {
+                // 이메일 형식이 아니면 가입이 안되므로 임시로 붙임
+                const userCredential = await auth.createUserWithEmailAndPassword(id + "@hkt.com", pw);
+                await db.collection("users").doc(userCredential.user.uid).set({
+                    userId: id,
+                    job: job,
+                    rank: "아카시아",
+                    attendance: 0
+                });
+                alert("반가워요! 회원가입 성공! 이제 로그인하세요.");
+            } catch (e) {
+                if(e.code === "auth/email-already-in-use") alert("이미 있는 아이디예요!");
+                else alert("에러: " + e.message);
+            }
         }
 
-        // --- 로그인 처리 ---
-        function handleLogin() {
-    const id = document.getElementById('user-id').value;
-    const job = document.getElementById('user-job').value;
+        // 로그인 기능
+        async function handleLogin() {
+            const id = document.getElementById('user-id').value;
+            const pw = document.getElementById('user-pw').value;
 
-    if(!id) { alert("아이디를 입력해주세요!"); return; }
-    alert("🍯 한꿀팁 한다~!");
-    
-    userData.id = id;
-    userData.job = job;
-    
-    document.getElementById('page-login').classList.add('hidden');
-    document.getElementById('main-app').classList.remove('hidden');
-    document.getElementById('help-btn').classList.remove('hidden');
-    document.getElementById('display-job').innerText = job;
-    
-    updateAttendanceUI();
-    renderRecommendedPosts(job); // <--- 직업에 맞는 글을 그려주는 코드를 추가했어요!
-}
-
-// 이 아래 코드는 새로 추가하는 함수입니다. handleLogin() 끝나는 중괄호(}) 바로 밑에 붙여넣으세요.
-function renderRecommendedPosts(selectedJob) {
-    const postList = document.getElementById('post-list');
-    postList.innerHTML = ''; 
-
-    const filteredPosts = allPosts.filter(post => post.job === selectedJob);
-
-    if(filteredPosts.length === 0) {
-        postList.innerHTML = `<p class="text-center py-10 opacity-50 font-bold">${selectedJob}을(를) 위한 꿀팁이 아직 없어요!</p>`;
-        return;
-    }
-
-    filteredPosts.forEach(post => {
-        const postHtml = `
-            <div class="bg-white border-4 border-black rounded-3xl p-5 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-                <div class="flex justify-between items-start mb-2">
-                    <h3 class="font-black text-lg">${post.title}</h3>
-                    <button class="bg-black text-white text-[10px] px-3 py-1 rounded-full font-bold">구독</button>
-                </div>
-                <div class="flex justify-between items-center text-xs font-bold mt-4">
-                    <span class="flex items-center gap-1">🌸 ${post.author}</span>
-                    <div class="flex gap-2 text-gray-500"><span>❤️ ${post.likes}</span></div>
-                </div>
-            </div>
-        `;
-        postList.innerHTML += postHtml;
-    });
-}
-
-
-        // --- 출석체크 기능 ---
-        function checkAttendance() {
-            if(userData.attendance >= 10) {
-                alert("꿀통이 가득 찼습니다! 찐꿀팁 열람권을 획득하셨어요!");
-                return;
+            try {
+                const userCredential = await auth.signInWithEmailAndPassword(id + "@hkt.com", pw);
+                const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
+                
+                if (userDoc.exists()) {
+                    currentUser = userDoc.data();
+                    alert("🍯 한꿀팁 한다~!");
+                    
+                    document.getElementById('page-login').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    document.getElementById('display-job').innerText = currentUser.job;
+                    document.getElementById('user-rank-display').innerText = rankIcons[currentUser.rank] + " " + currentUser.rank;
+                    
+                    renderPosts(currentUser.job);
+                }
+            } catch (e) {
+                alert("로그인 실패! 아이디나 비번을 확인하세요.");
             }
-            userData.attendance += 1;
-            updateAttendanceUI();
-            
-            // 등급 업그레이드 체크
-            if(userData.attendance === 5) {
-                userData.rank = '라벤더';
-                userData.rankIcon = '🪻';
-                alert("축하합니다! [라벤더] 등급으로 상승! 개꿀팁 게시판을 볼 수 있습니다.");
-            }
-            if(userData.attendance === 10) {
-                userData.rank = '로즈마리';
-                userData.rankIcon = '🌿';
-                alert("대단해요! [로즈마리] 등급 달성! 개꿀팁 게시판에 글을 쓸 수 있습니다.");
-            }
-            
-            document.getElementById('user-rank-display').innerText = userData.rankIcon + " " + userData.rank;
         }
 
-        function updateAttendanceUI() {
-            const percent = (userData.attendance / 10) * 100;
-            document.getElementById('honey-fill').style.height = percent + "%";
-            document.getElementById('attendance-count').innerText = userData.attendance + " / 10";
+        // 맞춤형 글 목록 (예시 데이터)
+        function renderPosts(job) {
+            const list = document.getElementById('post-list');
+            const posts = [
+                { title: "초딩의 슬라임 관리법", job: "초등학생" },
+                { title: "직장인 연차 눈치 안보고 쓰는 법", job: "직장인" },
+                { title: "대학생 국가장학금 신청 팁", job: "대학생" },
+                { title: "은퇴 후 건강 관리 비법", job: "은퇴 준비/후" }
+            ];
             
-            // 스탬프 그리드 업데이트
-            const grid = document.getElementById('stamp-grid');
-            grid.innerHTML = '';
-            for(let i=1; i<=10; i++) {
-                const stamp = document.createElement('div');
-                stamp.className = `h-12 border-2 border-black rounded-lg flex items-center justify-center font-bold ${i <= userData.attendance ? 'bg-orange-400' : 'bg-white'}`;
-                stamp.innerText = i <= userData.attendance ? '🍯' : i;
-                grid.appendChild(stamp);
-            }
+            list.innerHTML = posts
+                .filter(p => p.job === job)
+                .map(p => `<div class="bg-white p-5 rounded-3xl border-4 border-black font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${p.title}</div>`)
+                .join('');
         }
     </script>
 </body>
