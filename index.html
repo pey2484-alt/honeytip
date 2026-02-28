@@ -2,237 +2,211 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>🍯 한꿀팁 데모</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한꿀팁 데모</title>
+
 <style>
-body {
-    margin:0;
-    font-family:'Noto Sans KR', sans-serif;
-    background:#FFF7C0;
-    color:#333;
-}
-.top{
-    background:#FFCA28;
-    color:#fff;
-    padding:15px;
-    text-align:center;
-    font-size:28px;
-    font-weight:bold;
-    box-shadow:0 4px 6px rgba(0,0,0,0.1);
-}
-.screen{
-    display:none;
-    padding:20px;
-}
-.show{display:block;}
-input, select, textarea, button{
-    width:90%;
-    margin:5px 0;
-    padding:10px;
-    border-radius:10px;
-    border:1px solid #FFD54F;
-    font-size:16px;
-}
-button{
-    background:#FFB300;
-    color:#fff;
-    border:none;
-    cursor:pointer;
-    box-shadow:0 4px 6px rgba(0,0,0,0.2);
-}
-button:hover{
-    background:#FFA000;
-}
-.post{
-    background:#fff;
-    padding:15px;
-    margin:10px 0;
-    border-radius:15px;
-    box-shadow:0 4px 6px rgba(0,0,0,0.1);
-}
-.bottom{
-    position:fixed;
-    bottom:0;
-    width:100%;
-    background:#FFCA28;
-    color:#fff;
-    display:flex;
-    justify-content:space-around;
-    padding:10px 0;
-    box-shadow:0 -4px 6px rgba(0,0,0,0.1);
-    font-weight:bold;
-}
-.bottom div{cursor:pointer;}
-.badge{
-    display:inline-block;
-    padding:3px 8px;
-    margin:0 3px;
-    border-radius:12px;
-    background:#FFD54F;
-    font-size:12px;
-    font-weight:bold;
-}
+  body{margin:0;font-family:sans-serif;background:#FFF3B0;color:#333;}
+  .top{background:black;color:white;padding:10px;text-align:center;font-size:24px;display:flex;align-items:center;justify-content:center;}
+  .top img{height:30px;margin-right:10px;}
+  .screen{display:none;padding:20px;}
+  .show{display:block;}
+  input, select, textarea, button{width:90%;margin:5px 0;padding:8px;border-radius:5px;border:1px solid #ccc;}
+  button{background:#FFD700;color:black;font-weight:bold;cursor:pointer;}
+  .bottom{position:fixed;bottom:0;width:100%;background:black;color:white;display:flex;justify-content:space-around;padding:10px;}
+  .post{background:white;padding:10px;margin:10px;border-radius:10px;}
+  .badge{background:#FFD700;padding:2px 6px;border-radius:4px;font-size:12px;}
+  .attendance div{display:inline-block;width:30px;height:30px;border:1px solid black;border-radius:50%;line-height:30px;text-align:center;margin:3px;}
+  .checked{background:#FFD700;color:white;font-weight:bold;}
 </style>
 </head>
 <body>
 
-<div class="top">🍯 한꿀팁 데모</div>
+<div class="top"><img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" />한꿀팁</div>
 
-<!-- 로그인 화면 -->
+<!-- 로그인 -->
 <div id="login" class="screen show">
-    <h2>로그인</h2>
-    <input id="id" placeholder="아이디">
-    <input id="pw" placeholder="비밀번호" type="password">
-    <button onclick="login()">로그인하기</button>
-    <button onclick="join()">회원가입하기</button>
-    <br><br>
-    직업 선택:
-    <select id="job">
-        <option>초등학생</option>
-        <option>중학생</option>
-        <option>고등학생</option>
-        <option>대학생</option>
-        <option>직장인</option>
-        <option>결혼/육아</option>
-        <option>은퇴</option>
-        <option>취준생</option>
-    </select>
-    <p style="font-size:12px;color:#555;">선택한 직업에 따라 게시글이 추천됩니다.</p>
+  <h2>로그인 / 회원가입</h2>
+  <input id="id" placeholder="이메일">
+  <input id="pw" placeholder="비밀번호" type="password">
+  <select id="job">
+    <option>초등학생</option><option>중학생</option><option>고등학생</option>
+    <option>대학생</option><option>직장인</option><option>주부</option>
+    <option>은퇴자</option>
+  </select>
+  <button onclick="login()">로그인</button>
+  <button onclick="join()">회원가입</button>
+  <p style="font-size:12px;">당신의 직업에 따라 게시글이 추천됩니다.</p>
 </div>
 
-<!-- 홈 화면 -->
+<!-- 홈 -->
 <div id="home" class="screen">
-    <h2>🏠 홈</h2>
-    <h3>🔥 인기 게시글</h3>
-    <div id="bestPosts">아직 인기글 없음</div>
-
-    <h3>🆕 최신글</h3>
-    <select id="jobFilter" onchange="drawPosts()">
-        <option>전체</option>
-        <option>초등학생</option>
-        <option>중학생</option>
-        <option>고등학생</option>
-        <option>대학생</option>
-        <option>직장인</option>
-        <option>결혼/육아</option>
-        <option>은퇴</option>
-        <option>취준생</option>
-    </select>
-    <div id="posts"></div>
-    <br><br><br>
-    <button onclick="help()">❓ 도움말</button>
+  <h2>🏠 홈</h2>
+  <button onclick="checkAttendance()">출석체크</button>
+  <div class="attendance" id="attendance"></div>
+  <h3>🔥 인기게시글</h3>
+  <div id="bestPosts">아직 인기글 없음</div>
+  <h3>🆕 최신글</h3>
+  <select id="jobFilter" onchange="drawPosts()">
+    <option>전체</option><option>초등학생</option><option>중학생</option><option>고등학생</option>
+    <option>대학생</option><option>직장인</option><option>주부</option><option>은퇴자</option>
+  </select>
+  <div id="posts"></div>
+  <button onclick="showWrite()">글쓰기</button>
+  <button onclick="showMe()">내정보</button>
 </div>
 
 <!-- 글쓰기 -->
 <div id="write" class="screen">
-    <h2>글쓰기</h2>
-    <input id="title" placeholder="제목">
-    <textarea id="content" style="width:90%;height:200px;"></textarea>
-    <button onclick="addPost()">등록</button>
+  <h2>글쓰기</h2>
+  <input id="title" placeholder="제목">
+  <input id="hashtags" placeholder="#해시태그">
+  <textarea id="content" style="width:90%;height:150px;"></textarea>
+  <button onclick="addPost()">등록</button>
 </div>
 
 <!-- 내정보 -->
 <div id="me" class="screen">
-    <h2>내정보</h2>
-    <div id="myname"></div>
-    <button onclick="logout()">로그아웃</button>
+  <h2>내정보</h2>
+  <div id="myname"></div>
+  <div id="myTier"></div>
+  <div id="myHoney"></div>
+  <div id="myPosts"></div>
+  <button onclick="logout()">로그아웃</button>
 </div>
 
 <div class="bottom">
-    <div onclick="goHome()">홈</div>
-    <div onclick="goWrite()">+</div>
-    <div onclick="goMe()">내정보</div>
+  <div onclick="goHome()">홈</div>
+  <div onclick="showWrite()">+</div>
+  <div onclick="showMe()">내정보</div>
 </div>
 
-<script>
+<!-- Firebase -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCFsX__LeM3jGJ3pXsab_0rxJ5C1weoRHA",
+  authDomain: "honeytip-badb0.firebaseapp.com",
+  projectId: "honeytip-badb0",
+  storageBucket: "honeytip-badb0.appspot.com",
+  messagingSenderId: "601225679455",
+  appId: "1:601225679455:web:a688bccc656bf1474681ea"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
 let user=null;
-let posts=[];
 
-// 로그인/회원가입
-function login(){
-    user={id:document.getElementById("id").value, job:document.getElementById("job").value, tier:'아카시아'};
-    showHome();
+async function join(){
+  const email = prompt("이메일 입력");
+  const pw = prompt("비밀번호 입력");
+  const userJob = document.getElementById("job").value;
+  try{
+    const userCredential = await createUserWithEmailAndPassword(auth,email,pw);
+    const uid = userCredential.user.uid;
+    await addDoc(collection(db,"users"), {uid,email,job:userJob,tier:"아카시아",attendance:0,honey:0});
+    alert("회원가입 완료");
+  }catch(e){alert(e.message);}
 }
-function join(){ alert("회원가입 완료"); }
-function logout(){ showLogin(); }
 
-// 화면 전환
+async function login(){
+  const email = document.getElementById("id").value;
+  const pw = document.getElementById("pw").value;
+  try{
+    const userCredential = await signInWithEmailAndPassword(auth,email,pw);
+    const uid = userCredential.user.uid;
+    const q = query(collection(db,"users"),where("uid","==",uid));
+    const snapshot = await getDocs(q);
+    snapshot.forEach(docSnap => { user = {...docSnap.data(), docId: docSnap.id}; });
+    showHome();
+    renderAttendance();
+    drawPosts();
+  }catch(e){alert(e.message);}
+}
+
+async function logout(){
+  await signOut(auth);
+  showLogin();
+}
+
 function hideAll(){
-    ['login','home','write','me'].forEach(id=>document.getElementById(id).classList.remove('show'));
-}
-function showLogin(){ hideAll(); document.getElementById('login').classList.add('show'); }
-function showHome(){ hideAll(); document.getElementById('home').classList.add('show'); drawPosts(); drawBest(); }
-function showWrite(){ hideAll(); document.getElementById('write').classList.add('show'); }
-function showMe(){ hideAll(); document.getElementById('me').classList.add('show'); document.getElementById('myname').innerHTML=`닉네임: 꿀벌${Math.floor(Math.random()*100)} (${user.tier})`; }
-function goHome(){ showHome(); }
-function goWrite(){ showWrite(); }
-function goMe(){ showMe(); }
-
-// 게시글
-function addPost(){
-    let t=document.getElementById('title').value;
-    let c=document.getElementById('content').value;
-    posts.push({title:t, content:c, job:user.job, likes:0, comments:[], author:user.id});
-    showHome();
-}
-function drawPosts(){
-    let filter=document.getElementById('jobFilter').value;
-    let html='';
-    posts.forEach(p=>{
-        if(filter=='전체' || p.job==filter){
-            html+=`<div class="post">
-                    <h3>${p.title} <span class="badge">${p.job}</span></h3>
-                    <p>${p.content}</p>
-                    <p>👍 ${p.likes} | 💬 ${p.comments.length}</p>
-                    <button onclick="likePost('${p.title}')">좋아요</button>
-                    <button onclick="commentPost('${p.title}')">댓글</button>
-                </div>`;
-        }
-    });
-    document.getElementById('posts').innerHTML=html;
-}
-function drawBest(){
-    let best=document.getElementById('bestPosts');
-    let sorted=[...posts].sort((a,b)=>b.likes-b.comments.length);
-    let html='';
-    sorted.slice(0,5).forEach(p=>{
-        html+=`<div class="post">
-                <h4>${p.title} <span class="badge">${p.job}</span></h4>
-                👍 ${p.likes} | 💬 ${p.comments.length}
-            </div>`;
-    });
-    best.innerHTML=html||'아직 인기글 없음';
+  document.getElementById("login").classList.remove("show");
+  document.getElementById("home").classList.remove("show");
+  document.getElementById("write").classList.remove("show");
+  document.getElementById("me").classList.remove("show");
 }
 
-// 좋아요/댓글
-function likePost(title){
-    let p=posts.find(x=>x.title==title); if(p){p.likes++; drawPosts(); drawBest();}
+function showLogin(){hideAll(); document.getElementById("login").classList.add("show");}
+function showHome(){hideAll(); document.getElementById("home").classList.add("show");}
+function showWrite(){hideAll(); document.getElementById("write").classList.add("show");}
+function showMe(){hideAll(); document.getElementById("me").classList.add("show"); renderMyInfo();}
+function goHome(){showHome(); drawPosts();}
+
+async function addPost(){
+  const t = document.getElementById('title').value;
+  const c = document.getElementById('content').value;
+  const hashtags = document.getElementById('hashtags').value.split(",");
+  await addDoc(collection(db,"posts"),{
+    title:t, content:c, hashtags:hashtags, job:user.job, author:user.email, tier:user.tier, likes:0, comments:[], timestamp:Date.now()
+  });
+  alert("글 등록 완료!");
+  showHome();
 }
-function commentPost(title){
-    let comment=prompt("댓글 입력"); if(comment){
-        let p=posts.find(x=>x.title==title);
-        if(p){p.comments.push(comment); drawPosts(); drawBest();}
+
+async function drawPosts(){
+  const filter = document.getElementById('jobFilter').value;
+  let postsDiv = document.getElementById('posts');
+  let html = "";
+  const q = collection(db,"posts");
+  const snapshot = await getDocs(q);
+  snapshot.forEach(docSnap=>{
+    const p = docSnap.data();
+    if(filter=="전체" || p.job==filter){
+      html+=`<div class="post">
+        <h3>${p.title} <span class="badge">${p.job}</span></h3>
+        <p>${p.content}</p>
+        <p>👍 ${p.likes} | 💬 ${p.comments.length}</p>
+      </div>`;
     }
+  });
+  postsDiv.innerHTML = html || "게시글 없음";
 }
 
-// 도움말
-function help(){
-    alert(`
-게시판 종류:
-- 일반: 누구나 이용 가능
-- 개꿀팁: 라벤더 이상
-- 찐꿀팁: 유채 이상
-
-등급:
-아카시아: 일반
-라벤더: 개꿀팁 보기
-로즈마리: 개꿀팁 쓰기
-유채: 찐꿀팁 보기
-밤: 찐꿀팁 쓰기
-두리안: 의뢰
-클로버: 판매
-`);
+// 출석체크
+async function checkAttendance(){
+  if(!user) return;
+  if(user.attendance>=20){alert("출석 완료!"); return;}
+  user.attendance++;
+  user.honey+=1;
+  // 등급 상승
+  if(user.attendance==5) user.tier="라벤더";
+  else if(user.attendance==10) user.tier="로즈마리";
+  else if(user.attendance>=15) user.tier="유채";
+  await updateDoc(doc(db,"users",user.docId),{attendance:user.attendance,tier:user.tier,honey:user.honey});
+  renderAttendance();
+  alert(`출석체크 완료! 현재 등급: ${user.tier}, 꿀: ${user.honey}`);
 }
+
+function renderAttendance(){
+  let div = document.getElementById('attendance'); div.innerHTML="";
+  for(let i=1;i<=20;i++){
+    const d = document.createElement('div');
+    d.innerText=i;
+    if(user.attendance>=i) d.classList.add('checked');
+    div.appendChild(d);
+  }
+}
+
+function renderMyInfo(){
+  document.getElementById('myname').innerText = "닉네임: "+user.email;
+  document.getElementById('myTier').innerText = "등급: "+user.tier;
+  document.getElementById('myHoney').innerText = "꿀: "+user.honey;
+}
+
 </script>
-
 </body>
 </html>
