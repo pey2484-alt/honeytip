@@ -1,4 +1,0 @@
-const playIntro = () => {
-  const audio = new Audio('/honey_intro.mp3');
-  audio.play();
-};
