@@ -1,343 +1,98 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한꿀팁 - Honey Tip</title>
-    <style>
-        :root { --main-yellow: #FFD700; --border: 2px solid #000; }
-        body { margin: 0; font-family: 'Apple SD Gothic Neo', sans-serif; background: #fff; padding-bottom: 90px; }
-        header { display: flex; padding: 10px 15px; border-bottom: 1px solid #eee; background: #fff; position: sticky; top: 0; z-index: 100; align-items: center; }
-        .logo-text { font-size: 1.2rem; font-weight: 800; cursor: pointer; white-space: nowrap; margin-right: 10px; }
-        .search-bar { flex: 1; display: flex; align-items: center; }
-        .search-input { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 20px; outline: none; }
-        .menu-btn { font-size: 1.5rem; cursor: pointer; margin-left: 15px; }
-        .page { display: none; padding: 20px; box-sizing: border-box; min-height: 100vh; }
-        .page.active { display: block; }
-        .nav-bar { position: fixed; bottom: 0; width: 100%; height: 75px; background: #fff; border-top: var(--border); display: none; justify-content: space-around; align-items: center; z-index: 1000; }
-        .nav-item { text-align: center; font-size: 0.7rem; color: #888; cursor: pointer; flex: 1; display: flex; flex-direction: column; align-items: center; }
-        .nav-item.active { color: #000; font-weight: bold; }
-        .nav-add-box { width: 50px; height: 50px; background: var(--main-yellow); border: var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-top: -40px; }
-        .card { border: var(--border); border-radius: 15px; padding: 15px; margin-bottom: 12px; background: #fff; cursor: pointer; }
-        .pop-card { min-width: 170px; border: var(--border); border-radius: 12px; padding: 12px; margin-right: 12px; background: #fff; flex-shrink: 0; box-shadow: 2px 2px 0px #000; }
-        .tag-pill { display: inline-block; padding: 5px 10px; border: 1px solid #000; border-radius: 15px; font-size: 0.8rem; margin: 3px; background: #fff; cursor: pointer; }
-        .cat-box { display: none; padding: 10px; background: #f9f9f9; border-radius: 10px; margin-bottom: 10px; border: 1px dashed #000; }
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: none; z-index: 2000; flex-direction: column; }
-        .modal-header { padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; justify-content: space-between; }
-        .modal-body { flex: 1; padding: 20px; overflow-y: auto; }
-        .attn-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 10px; background: #f0f0f0; border-radius: 15px; margin-bottom: 15px; }
-        .attn-dot { aspect-ratio: 1; border: 1px solid #ccc; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; position: relative; background: #fff; font-weight: bold; }
-        .attn-dot.stamped::after { content: '🍯'; position: absolute; font-size: 1.3rem; }
-        .help-fab { position: fixed; bottom: 90px; right: 20px; width: 50px; height: 50px; background: #fff; border: var(--border); border-radius: 50%; display: none; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; z-index: 500; cursor: pointer; box-shadow: 2px 2px 0px #000; }
-        .btn-action { padding: 8px 15px; border-radius: 20px; border: 1px solid #000; background: #fff; font-weight: bold; cursor: pointer; margin-top: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>한꿀팁 - Honey Tip</title>
+
+<style>
+
+body {
+margin:0;
+font-family: Arial;
+background:#fff8cc;
+text-align:center;
+}
+
+header{
+background:#FFD700;
+padding:20px;
+font-size:30px;
+font-weight:bold;
+}
+
+.menu{
+
+margin-top:50px;
+
+}
+
+button{
+
+width:250px;
+height:70px;
+
+margin:15px;
+
+font-size:20px;
+
+border-radius:20px;
+
+border:3px solid black;
+
+background:white;
+
+}
+
+button:hover{
+
+background:#ffe066;
+
+}
+
+</style>
+
 </head>
-<body> 
 
-    <div id="page-auth" class="page active" style="text-align:center; padding-top:60px;">
-        <h1 style="font-size: 3.5rem;">한꿀팁 🍯</h1>
-        <input type="text" id="auth-id" style="width:85%; padding:15px; margin:10px 0; border:var(--border); border-radius:12px;" placeholder="아이디">
-        <input type="password" id="auth-pw" style="width:85%; padding:15px; margin:10px 0; border:var(--border); border-radius:12px;" placeholder="비밀번호">
-        <div id="role-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:85%; margin:20px auto;"></div>
-        <button onclick="handleAuth()" style="width:85%; padding:18px; background:var(--main-yellow); border:var(--border); border-radius:12px; font-weight:bold;">시작하기</button>
-    </div> 
 
-    <header id="main-header" style="display:none;">
-        <div class="logo-text" onclick="goHome()">🍯 한꿀팁</div>
-        <div class="search-bar">
-            <input type="text" id="main-search" class="search-input" placeholder="키워드나 #태그 검색..." onkeyup="if(event.keyCode==13) { globalSearch(this.value); this.blur(); }">
-        </div>
-        <div class="menu-btn" onclick="showPage('board')">☰</div>
-    </header> 
 
-    <div id="page-home" class="page">
-        <div id="pop-section">
-            <h4>🔥 실시간 인기 Top 10</h4>
-            <div id="pop-feed" style="display:flex; overflow-x:auto; padding-bottom:10px;"></div>
-        </div>
-        <div id="feed-header-area" style="display:flex; justify-content:space-between; align-items:center; margin-top:20px;">
-            <h4 id="feed-title">✨ 최신순</h4>
-            <select id="role-select" onchange="window.currentRole = this.value; loadFeed(this.value);" style="border:var(--border); padding:5px; border-radius:10px; background:#fff;"></select>
-        </div>
-        <div id="home-feed"></div>
-    </div> 
+<body>
 
-    <div id="page-board" class="page">
-        <h3>⚪ 일반 꿀팁</h3>
-        <div id="board-list"></div>
-        <h3 style="margin-top:25px;">😜 개꿀팁 🔒</h3><div class="card" style="color:#aaa;">라벤더(🪻) 이상 열람 가능</div>
-        <h3 style="margin-top:10px;">👍 찐꿀팁 🔒</h3><div class="card" style="color:#aaa;">유채(🌼) 이상 열람 가능</div>
-        <div style="margin-top:30px; text-align:center; font-weight:bold; font-size:0.9rem; color:#666;">🌸 → 🪻 → 🌿 → 🌼 → 🌰 → 🍈 → 🍀</div>
-    </div> 
+<header>
 
-    <div id="page-add" class="page">
-        <h2>✍️ 꿀팁 등록</h2>
-        <input type="text" id="post-title" style="width:100%; padding:15px; border:var(--border); border-radius:12px; margin-bottom:10px;" placeholder="제목">
-        <div id="tag-reco-area" style="margin-bottom:10px; min-height: 40px;"></div>
-        <input type="text" id="post-tags" style="width:100%; padding:12px; border:var(--border); border-radius:12px; margin-bottom:10px;" placeholder="#를 입력해 추천 태그 보기" oninput="recommendTags(this.value)">
-        <textarea id="post-content" style="width:100%; height:300px; padding:15px; border:var(--border); border-radius:12px; margin-bottom:10px;" placeholder="내용"></textarea>
-        <button onclick="savePost()" style="width:100%; padding:18px; background:var(--main-yellow); border:var(--border); border-radius:12px; font-weight:bold;">등록하기</button>
-    </div> 
+🍯 한꿀팁 Honey Tip
 
-    <div id="page-sub" class="page">
-        <h3>🔔 구독 피드</h3>
-        <div id="sub-list" style="margin-bottom:15px; display:flex; gap:10px; overflow-x:auto;"></div>
-        <hr>
-        <div id="sub-feed"></div>
-    </div> 
+</header>
 
-    <div id="page-me" class="page">
-        <div class="card" style="background:var(--main-yellow); text-align:center;">
-            <div id="me-icon" style="font-size:3rem;">🌸</div>
-            <h2 id="me-nick-area"></h2>
-            <div id="me-grade-name" style="font-weight: bold; margin-bottom: 10px;">등급: 아카시아</div>
-            <button onclick="changeNick()">닉네임 변경</button>
-        </div>
-        <div style="margin-top:20px; margin-bottom: 20px;">
-            <div class="card" onclick="showMyHistory('posts')">📜 내가 쓴 글 내역</div>
-            <div class="card" onclick="showMyHistory('likes')">❤️ 내가 누른 좋아요</div>
-            <div class="card" onclick="showMyHistory('comments')">💬 내가 쓴 댓글</div>
-            <div class="card" onclick="showAttnModal()">📅 출석체크</div>
-        </div>
-        <div style="text-align:center; margin-top:40px;">
-            <button onclick="doLogout()" style="width:100%; color:red; font-weight:bold; background:none; border:none; padding:10px; cursor:pointer;">로그아웃 🚪</button>
-            <p style="color:#999; font-size:0.8rem; margin-top:5px;">로그아웃하면 다시 회원가입 안됨.</p>
-        </div>
-    </div> 
 
-    <div id="modal-sys" class="modal">
-        <div class="modal-header"><span id="modal-title" style="font-weight:bold;"></span><span style="font-size:1.5rem; cursor:pointer;" onclick="closeModal()">✕</span></div>
-        <div id="modal-body" class="modal-body"></div>
-    </div>
-    <div id="help-fab" class="help-fab" onclick="showHelp()">?</div> 
+<div class="menu">
 
-    <nav id="bottom-nav" class="nav-bar">
-        <div class="nav-item active" id="nav-home" onclick="goHome(this)">🏠<span>홈</span></div>
-        <div class="nav-item" id="nav-board" onclick="showPage('board', this)">📋<span>게시판</span></div>
-        <div class="nav-item" id="nav-add" onclick="showPage('add', this)"><div class="nav-add-box">+</div><span>추가</span></div>
-        <div class="nav-item" id="nav-sub" onclick="showPage('sub', this)">🔔<span>구독</span></div>
-        <div class="nav-item" id="nav-me" onclick="showPage('me', this)">👤<span>내 정보</span></div>
-    </nav> 
+<button onclick="location.href='tip.html'">
+꿀팁 보기
+</button>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, get, update, push, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"; 
 
-        const firebaseConfig = { apiKey: "AIzaSyCzMTL7d8Yx-Lm1boo_7IVpgAibEyJY-V8", authDomain: "hanggultip.firebaseapp.com", projectId: "hanggultip", databaseURL: "https://hanggultip-default-rtdb.asia-southeast1.firebasedatabase.app" };
-        const app = initializeApp(firebaseConfig); const auth = getAuth(app); const db = getDatabase(app); 
+<br>
 
-        let ROLES = ["초등학생", "중학생", "고등학생", "대학생", "직장인", "결혼/육아", "은퇴 준비/후", "취준생"];
-        const ROLE_TAGS = { "초등학생":["학교","숙제","간식"], "중학생":["시험","학원","고민"], "고등학생":["입시","공부법","야자"], "대학생":["학점","장학금","연애"], "직장인":["연봉","이직","재테크"], "결혼/육아":["살림","육아","반찬"], "은퇴 준비/후":["연금","건강","취미"], "취준생":["자소서","면접","공고"] };
-        const FLOWERS = ["🌸", "🪻", "🌿", "🌼", "🌰", "🍈", "🍀"];
-        const FLOWER_NAMES = ["아카시아", "라벤더", "로즈마리", "유채", "밤", "두리안", "클로버"];
-        let myData = null; let selRole = ""; let dynamicTags = {}; 
-        window.isSearchMode = false; window.currentRole = "전체"; 
 
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                onValue(ref(db, 'users/'+user.uid), s => {
-                    myData = s.val(); if(!myData) return;
-                    document.getElementById('page-auth').style.display = 'none';
-                    document.getElementById('main-header').style.display = 'flex';
-                    document.getElementById('bottom-nav').style.display = 'flex';
-                    document.getElementById('help-fab').style.display = 'flex';
-                    const gIdx = Math.min(Math.floor((myData.attnCount||0)/5), 6);
-                    document.getElementById('me-nick-area').innerText = getNickSet(myData.nick, myData.attnCount);
-                    document.getElementById('me-icon').innerText = FLOWERS[gIdx];
-                    document.getElementById('me-grade-name').innerText = "등급: " + FLOWER_NAMES[gIdx];
-                    if(!document.querySelector('.page.active:not(#page-auth)')) goHome();
-                });
-                initSync(); 
-            } else {
-                document.getElementById('page-auth').style.display = 'block';
-                document.getElementById('main-header').style.display = 'none';
-                document.getElementById('bottom-nav').style.display = 'none';
-                document.getElementById('help-fab').style.display = 'none';
-            }
-        }); 
+<button onclick="location.href='write.html'">
+글쓰기
+</button>
 
-        function initSync() {
-            onValue(ref(db, 'posts'), (snapshot) => {
-                // [핵심] 검색 모드이면 이 리스너는 화면 갱신을 1초도 허용하지 않음
-                if(window.isSearchMode === true) return; 
-                
-                const data = snapshot.val() || {};
-                renderPop(data);
-                renderFeed(data, window.currentRole);
-            });
-        } 
 
-        window.globalSearch = async (val) => {
-            if(!val.trim()) return;
-            
-            // 1. 즉시 검색 모드 잠금 및 화면 정리
-            window.isSearchMode = true; 
-            document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-            document.getElementById('page-home').classList.add('active');
-            
-            document.getElementById('pop-section').style.display = "none";
-            document.getElementById('feed-header-area').style.display = "none";
-            document.getElementById('feed-title').innerText = `🔍 '${val}' 검색 결과`;
-            
-            const h = document.getElementById('home-feed');
-            h.innerHTML = "<p style='text-align:center; padding:50px;'>데이터 분석 중... 🍯</p>"; 
+<br>
 
-            // 2. 비동기로 데이터 가져오기
-            try {
-                const snapshot = await get(ref(db, 'posts'));
-                const data = snapshot.val() || {};
-                
-                // 검색 모드가 유지되는지 한 번 더 확인 (안전장치)
-                if(!window.isSearchMode) return; 
 
-                let html = "";
-                let found = false;
-                const searchVal = val.toLowerCase(); 
+<button onclick="location.href='login.html'">
+로그인
+</button>
 
-                Object.entries(data).reverse().forEach(([id, p]) => {
-                    if(!p.title) return;
-                    const searchArea = (p.title + (p.tags||"") + p.content + (p.author||"")).toLowerCase();
-                    if(searchArea.includes(searchVal)) {
-                        found = true;
-                        html += createCardHtml(id, p);
-                    }
-                }); 
 
-                h.innerHTML = found ? html : "<p style='text-align:center; padding:80px; color:#999;'>검색 결과가 없습니다! 😅</p>";
-                
-            } catch(e) {
-                h.innerHTML = "검색 중 오류가 발생했습니다.";
-            }
-        }; 
+</div>
 
-        window.goHome = (el) => {
-            window.isSearchMode = false; // 검색 잠금 해제
-            window.currentRole = "전체";
-            document.getElementById('main-search').value = "";
-            document.getElementById('pop-section').style.display = "block";
-            document.getElementById('feed-header-area').style.display = "flex";
-            showPage('home', el || document.getElementById('nav-home'));
-            get(ref(db, 'posts')).then(s => renderFeed(s.val()||{}, "전체"));
-        }; 
 
-        function renderFeed(data, role) {
-            if(window.isSearchMode) return; // 다시 한 번 차단막
-            const h = document.getElementById('home-feed'); if(!h) return;
-            const sub = document.getElementById('sub-feed');
-            const subList = document.getElementById('sub-list');
-            h.innerHTML = ""; if(sub) sub.innerHTML = ""; if(subList) subList.innerHTML = "";
-            const mySubs = myData?.subs ? Object.values(myData.subs) : []; 
-
-            document.getElementById('feed-title').innerText = role === "전체" ? "✨ 최신순" : `✨ ${role} 최신순`;
-            
-            Object.entries(data).reverse().forEach(([id,p]) => {
-                if(!p.title) return;
-                const html = createCardHtml(id, p);
-                if(role === "전체" || p.role === role) h.innerHTML += html;
-                if(sub && mySubs.includes(p.author)) sub.innerHTML += html;
-                if(p.tags) { p.tags.split(' ').forEach(tag => { if(tag.startsWith('#')) { const ct = tag.replace('#',''); if(!dynamicTags[p.role]) dynamicTags[p.role] = new Set(); dynamicTags[p.role].add(ct); } }); }
-            });
-            renderBoards();
-        } 
-
-        function createCardHtml(id, p) {
-            const cCnt = p.comments ? Object.keys(p.comments).length : 0;
-            return `<div class="card" onclick="viewPost('${id}')"><b>[${p.role}] ${p.title}</b><br><small>${getNickSet(p.author, p.authorAttn)} | 👀 ${p.views||0} ❤️ ${p.likes||0} 💬 ${cCnt}</small></div>`;
-        } 
-
-        function renderPop(data) {
-            const f = document.getElementById('pop-feed'); if(!f) return;
-            f.innerHTML = "";
-            const sorted = Object.entries(data).filter(([id,p])=>p.title).sort((a,b)=>((b[1].views||0)+(b[1].likes||0)*3)-((a[1].views||0)+(a[1].likes||0)*3)).slice(0,10);
-            sorted.forEach(([id,p])=> {
-                const cCnt = p.comments ? Object.keys(p.comments).length : 0;
-                f.innerHTML += `<div class="pop-card" onclick="viewPost('${id}')"><b>${p.title}</b><br><small>👀 ${p.views||0} ❤️ ${p.likes||0} 💬 ${cCnt}</small></div>`;
-            });
-        } 
-
-        window.loadFeed = (role) => {
-            window.isSearchMode = false;
-            window.currentRole = role;
-            get(ref(db, 'posts')).then(s => renderFeed(s.val()||{}, role));
-        }; 
-
-        function getNickSet(nick, attnCount = 0) { const idx = Math.min(Math.floor((attnCount || 0) / 5), 6); return nick + FLOWERS[idx]; }
-        window.renderBoards = () => {
-            const l = document.getElementById('board-list'); if(!l) return;
-            l.innerHTML = "";
-            const sel = document.getElementById('role-select'); 
-            const currentVal = sel.value || "전체";
-            sel.innerHTML = `<option value="전체">전체 ▼</option>`;
-            ROLES.forEach(r => {
-                let tagList = ROLE_TAGS[r] || [];
-                if(dynamicTags[r]) tagList = Array.from(new Set([...tagList, ...dynamicTags[r]]));
-                const tags = tagList.map(t => `<span class="tag-pill" onclick="filterByTag('${t}')">#${t}</span>`).join('');
-                l.innerHTML += `<div class="card" onclick="toggleCat('${r}')">🍯 ${r} 게시판 ▼</div><div id="cat-${r}" class="cat-box">${tags}</div>`;
-                sel.innerHTML += `<option value="${r}">${r} ▼</option>`;
-            });
-            sel.value = currentVal;
-        };
-        window.showHelp = () => {
-            document.getElementById('modal-title').innerText = "❓ 이용 안내 및 등급 승급";
-            document.getElementById('modal-body').innerHTML = `<div style="font-size:0.9rem; line-height:1.6;"><div style="background:#f0f0f0; padding:10px; border-radius:10px; border:1px solid #000; margin-bottom:15px;"><b>[게시판 종류]</b><br>⚪ <b>일반 게시판</b>: 누구나 이용가능<br>😜 <b>개꿀팁 게시판</b>: 라벤더(🪻) 이상부터 이용가능<br>👍 <b>찐꿀팁 게시판</b>: 유채(🌼) 이상부터 이용가능</div><b>[등급 및 승급 조건]</b><p>🌸 <b>아카시아</b>: 일반꿀팁<br><small>- 기본 등급</small></p><p>🪻 <b>라벤더</b>: 개꿀팁 게시판 보기만 가능<br><small style="color:#666;">└ 승급 조건: 출석 5일</small></p><p>🌿 <b>로즈마리</b>: 개꿀팁 게시판 쓰는 것 가능<br><small style="color:#666;">└ 승급 조건: 출석 10일</small></p><p>🌼 <b>유채</b>: 찐꿀팁 게시판 보기만 가능<br><small style="color:#666;">└ 승급 조건: 좋아요 20개 이상, 게시글 3개 이상</small></p><p>🌰 <b>밤</b>: 찐꿀팁 게시판 글쓰기 가능(전문가 인증)<br><small style="color:#666;">└ 승급 조건: 게시글 20개 이상, 좋아요 50개 이상, 구독자 10명 이상</small></p><p>🍈 <b>두리안</b>: 찐개꿀팁 게시판 의뢰가능<br><small style="color:#666;">└ 승급 조건: 꿀머니 구매 1번 이상</small></p><p>🍀 <b>클로버</b>: 찐개꿀팁 게시판 게시글 판매 가능<br><small style="color:#666;">└ 승급 조건: 꿀머니 구매 3번 이상, 게시글 50개 이상, 좋아요 100개 이상, 구독자 30명 이상</small></p></div>`;
-            openModal();
-        };
-        window.showAttnModal = () => {
-            let grid=""; for(let i=1;i<=20;i++) grid+=`<div class="attn-dot ${i<=myData.attnCount?'stamped':''}">${i}</div>`;
-            document.getElementById('modal-title').innerText="출석체크";
-            document.getElementById('modal-body').innerHTML=`<div class="attn-grid">${grid}</div><div style="background:#fff9c4; padding:15px; border-radius:12px; font-size:0.9rem; line-height:1.6; border:var(--border);"><b style="font-size:1rem;">🎁 출석 혜택 안내</b><br>• 출석체크 <span style="color:#e91e63; font-weight:bold;">5일째</span>: <span style="color:#673ab7; font-weight:bold;">라벤더(🪻)</span> 승급!<br>• 출석체크 <span style="color:#e91e63; font-weight:bold;">10일째</span>: <span style="color:#4caf50; font-weight:bold;">로즈마리(🌿)</span> 승급!<br>• <span style="color:#e91e63; font-weight:bold;">15일째부터</span>: <span style="background:var(--main-yellow);">개꿀팁 게시판 티켓 5장</span> 지급!<br></div><button onclick="doAttn()" class="btn-action" style="width:100%; height:50px; background:var(--main-yellow); margin-top:15px; font-size:1.1rem;">오늘의 도장 찍기 🍯</button>`;
-            openModal();
-        };
-        window.doAttn = async () => {
-            const today=new Date().toLocaleDateString();
-            if(myData.lastAttn===today) return alert("오늘은 이미 출석했습니다!");
-            const newCount = (myData.attnCount || 0) + 1;
-            await update(ref(db, 'users/'+auth.currentUser.uid), {attnCount:newCount, lastAttn:today});
-            alert("출석 완료!"); showAttnModal();
-        };
-        window.viewPost = (id) => {
-            get(ref(db, 'posts/'+id)).then(s => {
-                const p = s.val(); if(!p) return;
-                update(ref(db, 'posts/'+id), {views:(p.views||0)+1});
-                const tagHtml = p.tags ? `<div style="margin:10px 0;">${p.tags.split(' ').map(t => `<span style="color:blue; margin-right:5px; cursor:pointer;" onclick="filterByTag('${t.replace('#','')}')">${t}</span>`).join('')}</div>` : "";
-                document.getElementById('modal-title').innerText = "꿀팁 상세보기";
-                document.getElementById('modal-body').innerHTML = `<h1>${p.title}</h1><p>👤 ${getNickSet(p.author, p.authorAttn)}</p>${tagHtml}<hr><p style="min-height:150px; white-space:pre-wrap;">${p.content}</p><button class="btn-action" onclick="toggleLike('${id}')">❤️ 좋아요 ${p.likes||0}</button><button class="btn-action" onclick="doSub('${p.author}')">🔔 구독</button><div style="margin-top:20px;"><input id="comm-in" placeholder="댓글입력..." style="padding:8px; width:70%; border:var(--border); border-radius:10px;"> <button onclick="addComm('${id}')" style="padding:8px; border:var(--border); border-radius:10px; background:var(--main-yellow);">등록</button></div><div id="comment-list" style="margin-top:15px;"></div>`;
-                if(p.comments) { const list = document.getElementById('comment-list'); Object.values(p.comments).reverse().forEach(c => { list.innerHTML += `<div style="border-bottom:1px solid #eee; padding:8px 0;"><b>${getNickSet(c.author, c.authorAttn)}</b>: ${c.content}</div>`; }); }
-                openModal();
-            });
-        };
-        window.savePost = async () => {
-            const t = document.getElementById('post-title').value;
-            const c = document.getElementById('post-content').value;
-            const tags = document.getElementById('post-tags').value;
-            if(!t || !c) return;
-            await push(ref(db, 'posts'), { title:t, content:c, author:myData.nick, authorAttn: myData.attnCount||0, role:myData.role, tags:tags, views:0, likes:0 });
-            document.getElementById('post-title').value = ""; document.getElementById('post-content').value = ""; document.getElementById('post-tags').value = "";
-            goHome();
-        };
-        window.showPage = (id, el) => {
-            window.isSearchMode = false; 
-            document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-            document.getElementById('page-'+id).classList.add('active');
-            if(el) { document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); el.classList.add('active'); }
-        };
-        window.openModal = () => { document.getElementById('modal-sys').style.display = 'flex'; };
-        window.closeModal = () => { document.getElementById('modal-sys').style.display = 'none'; };
-        window.toggleCat = (r) => { const el = document.getElementById(`cat-${r}`); el.style.display = el.style.display === 'block' ? 'none' : 'block'; };
-        window.filterByTag = (tag) => { globalSearch("#"+tag); };
-        window.recommendTags = (v) => { const area = document.getElementById('tag-reco-area'); area.innerHTML = ""; if(v.includes('#')) { const combined = new Set([...(ROLE_TAGS[myData.role]||[]), ...(dynamicTags[myData.role]||[])]); combined.forEach(t => { area.innerHTML += `<span class="tag-pill" onclick="setPostTag('${t}')">#${t}</span>`; }); } };
-        window.setPostTag = (tag) => { const input = document.getElementById('post-tags'); const tags = input.value.split(' '); tags.pop(); input.value = tags.join(' ') + " #" + tag + " "; document.getElementById('tag-reco-area').innerHTML = ""; input.focus(); };
-        window.doLogout = () => { signOut(auth).then(()=>location.reload()); };
-        window.changeNick = () => { const n = prompt("새 닉네임:"); if(n) update(ref(db, 'users/'+auth.currentUser.uid), {nick:n}); };
-        window.toggleLike = async (id) => { const isLiked = myData.likes?.[id]; const pRef = ref(db, `posts/${id}`); const pSnap = await get(pRef); const newCount = isLiked ? Math.max(0, (pSnap.val().likes||0)-1) : (pSnap.val().likes||0)+1; await update(pRef, { likes: newCount }); await set(ref(db, `users/${auth.currentUser.uid}/likes/${id}`), isLiked ? null : true); viewPost(id); };
-        window.addComm = async (id) => { const val = document.getElementById('comm-in').value; if(!val) return; await push(ref(db, `posts/${id}/comments`), { author: myData.nick, authorAttn: myData.attnCount, content: val }); document.getElementById('comm-in').value = ""; viewPost(id); };
-        window.doSub = async (target) => { if(target === myData.nick) return alert("본인 구독불가"); const subs = myData.subs || {}; if(Object.values(subs).includes(target)) return alert("이미 구독중"); await push(ref(db, `users/${auth.currentUser.uid}/subs`), target); alert(target + "님 구독!"); };
-        window.handleAuth = async () => { const id = document.getElementById('auth-id').value; const pw = document.getElementById('auth-pw').value; if(!id || !pw) return alert("정보 입력!"); if(!selRole) return alert("직업 선택!"); const email = id+"@gultip.com"; try { const res = await createUserWithEmailAndPassword(auth, email, pw); await set(ref(db, 'users/'+res.user.uid), { nick:id, role:selRole, attnCount:0 }); } catch(e) { signInWithEmailAndPassword(auth, email, pw).catch(err => alert("로그인 실패")); } };
-        window.showMyHistory = async (type) => { const snap = await get(ref(db, 'posts')); const posts = snap.val() || {}; let html = ""; let found = false; Object.entries(posts).reverse().forEach(([id, p]) => { if(!p.title) return; if(type === 'posts' && p.author === myData.nick) { html += `<div class="card" onclick="viewPost('${id}')">${p.title}</div>`; found=true; } else if(type === 'likes' && myData.likes?.[id]) { html += `<div class="card" onclick="viewPost('${id}')">${p.title}</div>`; found=true; } else if(type === 'comments' && p.comments) { Object.values(p.comments).forEach(c => { if(c.author === myData.nick) { html += `<div class="card" onclick="viewPost('${id}')">[댓글] ${c.content}</div>`; found=true; } }); } }); document.getElementById('modal-title').innerText = "내 활동 내역"; document.getElementById('modal-body').innerHTML = found ? html : "내역 없음"; openModal(); }; 
-
-        const ROLE_GRID = document.getElementById('role-grid');
-        ROLES.forEach(r => { const b = document.createElement('div'); b.className = 'tag-pill'; b.innerText = r; b.onclick = () => { document.querySelectorAll('#role-grid .tag-pill').forEach(x=>x.style.background="#fff"); b.style.background="#FFD700"; selRole = r; }; ROLE_GRID.appendChild(b); });
-    </script>
 </body>
+
 </html>
