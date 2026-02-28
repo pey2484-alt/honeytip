@@ -1,5 +1,0 @@
-<style>
-  .bg-honey { background-color: #FFD700; } /* 꿀색 */
-  .stripes { background: repeating-linear-gradient(45deg, #FFD700, #FFD700 10px, #000 10px, #000 12px); }
-  .honey-pot-border { border: 4px solid #8B4513; border-radius: 20px; }
-</style>
