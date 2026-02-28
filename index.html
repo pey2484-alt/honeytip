@@ -2,53 +2,72 @@
 <html lang="ko">
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>한꿀팁 - Honey Tip</title>
+<meta charset="UTF-8">
+
+<title>한꿀팁</title>
 
 <style>
 
-body {
+body{
 margin:0;
-font-family: Arial;
-background:#fff8cc;
-text-align:center;
-}
-
-header{
+font-family:sans-serif;
 background:#FFD700;
-padding:20px;
-font-size:30px;
-font-weight:bold;
 }
 
-.menu{
+.top{
 
-margin-top:50px;
+background:black;
+color:white;
+padding:10px;
+text-align:center;
 
+}
+
+.logo{
+font-size:28px;
+}
+
+.screen{
+display:none;
+padding:20px;
+}
+
+.show{
+display:block;
+}
+
+input{
+width:90%;
+height:40px;
+margin:5px;
 }
 
 button{
+width:90%;
+height:40px;
+margin:5px;
+}
 
-width:250px;
-height:70px;
-
-margin:15px;
-
-font-size:20px;
-
-border-radius:20px;
-
-border:3px solid black;
+.post{
 
 background:white;
+padding:10px;
+margin:10px;
+border-radius:10px;
 
 }
 
-button:hover{
+.bottom{
 
-background:#ffe066;
+position:fixed;
+bottom:0;
+width:100%;
+background:black;
+color:white;
+display:flex;
+justify-content:space-around;
+padding:10px;
 
 }
 
@@ -56,41 +75,374 @@ background:#ffe066;
 
 </head>
 
-
-
 <body>
 
-<header>
-
-🍯 한꿀팁 Honey Tip
-
-</header>
 
 
-<div class="menu">
+<div class="top">
 
-<button onclick="location.href='tip.html'">
-꿀팁 보기
+<div class="logo">
+🍯 한꿀팁
+</div>
+
+</div>
+
+
+
+<!-- 로그인 -->
+
+<div id="login" class="screen show">
+
+<h2>로그인</h2>
+
+<input id="id" placeholder="아이디">
+
+<input id="pw" placeholder="비밀번호" type="password">
+
+<button onclick="login()">
+로그인하기
 </button>
 
-
-<br>
-
-
-<button onclick="location.href='write.html'">
-글쓰기
+<button onclick="join()">
+회원가입하기
 </button>
 
+<br><br>
 
-<br>
+직업선택
+
+<select id="job">
+
+<option>초등학생</option>
+<option>중학생</option>
+<option>고등학생</option>
+<option>대학생</option>
+<option>직장인</option>
+<option>결혼/육아</option>
+<option>은퇴</option>
+<option>취준생</option>
+
+</select>
+
+</div>
 
 
-<button onclick="location.href='login.html'">
-로그인
+
+<!-- 홈 -->
+
+<div id="home" class="screen">
+
+<h2>🏠 홈</h2>
+
+
+<h3>🔥 인기게시글</h3>
+
+<div id="bestPosts">
+
+아직 인기글 없음
+
+</div>
+
+
+<h3>🆕 최신글</h3>
+
+
+<select id="jobFilter" onchange="drawPosts()">
+
+<option>전체</option>
+
+<option>초등학생</option>
+<option>중학생</option>
+<option>고등학생</option>
+<option>대학생</option>
+<option>직장인</option>
+<option>결혼/육아</option>
+<option>은퇴</option>
+<option>취준생</option>
+
+</select>
+
+
+
+<div id="posts">
+
+</div>
+
+
+<br><br><br>
+
+
+<button onclick="help()">
+❓ 도움말
 </button>
 
 
 </div>
+
+
+
+<!-- 글쓰기 -->
+
+<div id="write" class="screen">
+
+<h2>글쓰기</h2>
+
+<input id="title" placeholder="제목">
+
+<textarea id="content"
+style="width:90%;height:200px;">
+</textarea>
+
+<button onclick="addPost()">
+등록
+</button>
+
+</div>
+
+
+
+<!-- 내정보 -->
+
+<div id="me" class="screen">
+
+<h2>내정보</h2>
+
+<div id="myname">
+
+</div>
+
+<button onclick="logout()">
+로그아웃
+</button>
+
+</div>
+
+
+
+<div class="bottom">
+
+<div onclick="goHome()">
+홈
+</div>
+
+<div onclick="goWrite()">
++
+</div>
+
+<div onclick="goMe()">
+내정보
+</div>
+
+</div>
+
+
+
+
+<script>
+
+
+let user=null
+
+let posts=[]
+
+
+
+function login(){
+
+user=document.getElementById("id").value
+
+showHome()
+
+}
+
+
+
+function join(){
+
+alert("회원가입 완료")
+
+}
+
+
+
+function logout(){
+
+showLogin()
+
+}
+
+
+
+function showLogin(){
+
+hideAll()
+
+document.getElementById("login").classList.add("show")
+
+}
+
+
+
+function showHome(){
+
+hideAll()
+
+document.getElementById("home").classList.add("show")
+
+drawPosts()
+
+}
+
+
+
+function showWrite(){
+
+hideAll()
+
+document.getElementById("write").classList.add("show")
+
+}
+
+
+
+function showMe(){
+
+hideAll()
+
+document.getElementById("me").classList.add("show")
+
+document.getElementById("myname").innerHTML=
+
+"닉네임: 꿀벌"+Math.floor(Math.random()*100)
+
+}
+
+
+
+function hideAll(){
+
+document.getElementById("login").classList.remove("show")
+document.getElementById("home").classList.remove("show")
+document.getElementById("write").classList.remove("show")
+document.getElementById("me").classList.remove("show")
+
+}
+
+
+
+function goHome(){
+
+showHome()
+
+}
+
+
+
+function goWrite(){
+
+showWrite()
+
+}
+
+
+
+function goMe(){
+
+showMe()
+
+}
+
+
+
+function addPost(){
+
+let t=document.getElementById("title").value
+
+let c=document.getElementById("content").value
+
+
+posts.push({
+
+title:t,
+content:c
+
+})
+
+showHome()
+
+}
+
+
+
+function drawPosts(){
+
+function help(){
+
+alert(
+
+`게시판 설명
+
+일반꿀팁
+누구나 이용가능
+
+개꿀팁
+라벤더 이상
+
+찐꿀팁
+유채 이상
+
+
+등급
+
+아카시아
+일반
+
+라벤더
+개꿀팁 보기
+
+로즈마리
+개꿀팁 쓰기
+
+유채
+찐꿀팁 보기
+
+밤
+찐꿀팁 쓰기
+
+두리안
+의뢰
+
+클로버
+판매`
+
+)
+
+}
+
+let html=""
+
+for(let p of posts){
+
+html+=`
+
+<div class="post">
+
+<h3>${p.title}</h3>
+
+${p.content}
+
+</div>
+
+`
+
+}
+
+document.getElementById("posts").innerHTML=html
+
+}
+
+
+</script>
 
 
 </body>
