@@ -1,8 +1,0 @@
-{boardType === '개꿀팁' && userTierRank < 2 ? (
-  <div className="flex flex-col items-center py-20">
-    <span className="text-6xl">🔒 🐶</span>
-    <p>라벤더 등급 이상만 열람 가능합니다!</p>
-  </div>
-) : (
-  <PostList type={boardType} />
-)}
