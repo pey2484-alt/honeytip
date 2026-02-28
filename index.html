@@ -31,13 +31,17 @@
             
             <div class="py-2">
                 <label class="block font-black text-sm mb-2">당신의 직업을 선택하세요:</label>
-                <select id="user-job" class="w-full p-3 border-2 border-black rounded-xl bg-yellow-50">
-                    <option value="초등학생">초등학생</option>
-                    <option value="직장인">직장인</option>
-                    <option value="결혼/육아">결혼/육아</option>
-                    <option value="은퇴자">은퇴자</option>
-                    <option value="취준생">취준생</option>
-                </select>
+                <select id="user-job" class="w-full p-3 border-2 border-black rounded-xl bg-yellow-50 font-bold">
+    <option value="초등학생">초등학생</option>
+    <option value="중학생">중학생</option>
+    <option value="고등학생">고등학생</option>
+    <option value="대학생">대학생</option>
+    <option value="직장인">직장인</option>
+    <option value="결혼/육아">결혼/육아</option>
+    <option value="취준생">취준생</option>
+    <option value="은퇴 준비/후">은퇴 준비/후</option>
+</select>
+
                 <p class="text-[10px] mt-2 text-gray-500 font-bold">* 직업에 따라 게시글이 추천됩니다.</p>
             </div>
 
@@ -155,12 +159,25 @@
     <script>
         // --- 앱 상태 관리 ---
         let userData = {
-            id: '',
-            job: '',
-            attendance: 2,
-            rank: '아카시아',
-            rankIcon: '🌸'
-        };
+    id: '',
+    job: '',
+    attendance: 2,
+    rank: '아카시아',
+    rankIcon: '🌸'
+};
+
+// 연습용 데이터: 각 직업에 맞는 꿀팁들입니다.
+const allPosts = [
+    { title: "슬라임 안 굳게 보관하는 법", job: "초등학생", author: "꿀벌1", likes: 12 },
+    { title: "중간고사 벼락치기 암기법", job: "중학생", author: "공부왕", likes: 25 },
+    { title: "학종 생기부 관리 꿀팁", job: "고등학생", author: "입시생", likes: 88 },
+    { title: "공강 시간 알차게 쓰는 법", job: "대학생", author: "복학생", likes: 45 },
+    { title: "연말정산 세금 환급 많이 받는 법", job: "직장인", author: "김대리", likes: 120 },
+    { title: "아이 반찬 투정 없애는 레시피", job: "결혼/육아", author: "육아맘", likes: 210 },
+    { title: "자소서 소제목 한 눈에 띄게 쓰는 법", job: "취준생", author: "합격가자", likes: 95 },
+    { title: "은퇴 후 소일거리 추천 리스트", job: "은퇴 준비/후", author: "은퇴꿀", likes: 67 }
+];
+
 
         // --- 페이지 전환 함수 ---
         function showPage(pageId) {
@@ -171,24 +188,53 @@
 
         // --- 로그인 처리 ---
         function handleLogin() {
-            const id = document.getElementById('user-id').value;
-            const job = document.getElementById('user-job').value;
+    const id = document.getElementById('user-id').value;
+    const job = document.getElementById('user-job').value;
 
-            if(!id) { alert("아이디를 입력해주세요!"); return; }
-            
-            // "한꿀팁 한다~" 사운드 대신 얼럿 (실제 구현 시 playIntro() 사용)
-            alert("🍯 한꿀팁 한다~!");
-            
-            userData.id = id;
-            userData.job = job;
-            
-            document.getElementById('page-login').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            document.getElementById('help-btn').classList.remove('hidden');
-            document.getElementById('display-job').innerText = job;
-            
-            updateAttendanceUI();
-        }
+    if(!id) { alert("아이디를 입력해주세요!"); return; }
+    alert("🍯 한꿀팁 한다~!");
+    
+    userData.id = id;
+    userData.job = job;
+    
+    document.getElementById('page-login').classList.add('hidden');
+    document.getElementById('main-app').classList.remove('hidden');
+    document.getElementById('help-btn').classList.remove('hidden');
+    document.getElementById('display-job').innerText = job;
+    
+    updateAttendanceUI();
+    renderRecommendedPosts(job); // <--- 직업에 맞는 글을 그려주는 코드를 추가했어요!
+}
+
+// 이 아래 코드는 새로 추가하는 함수입니다. handleLogin() 끝나는 중괄호(}) 바로 밑에 붙여넣으세요.
+function renderRecommendedPosts(selectedJob) {
+    const postList = document.getElementById('post-list');
+    postList.innerHTML = ''; 
+
+    const filteredPosts = allPosts.filter(post => post.job === selectedJob);
+
+    if(filteredPosts.length === 0) {
+        postList.innerHTML = `<p class="text-center py-10 opacity-50 font-bold">${selectedJob}을(를) 위한 꿀팁이 아직 없어요!</p>`;
+        return;
+    }
+
+    filteredPosts.forEach(post => {
+        const postHtml = `
+            <div class="bg-white border-4 border-black rounded-3xl p-5 relative shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="font-black text-lg">${post.title}</h3>
+                    <button class="bg-black text-white text-[10px] px-3 py-1 rounded-full font-bold">구독</button>
+                </div>
+                <div class="flex justify-between items-center text-xs font-bold mt-4">
+                    <span class="flex items-center gap-1">🌸 ${post.author}</span>
+                    <div class="flex gap-2 text-gray-500"><span>❤️ ${post.likes}</span></div>
+                </div>
+            </div>
+        `;
+        postList.innerHTML += postHtml;
+    });
+}
+
 
         // --- 출석체크 기능 ---
         function checkAttendance() {
