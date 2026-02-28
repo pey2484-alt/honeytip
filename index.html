@@ -107,13 +107,16 @@
             }
         }
 
-        // 로그인 기능
+                // 로그인 기능
         async function handleLogin() {
-            const id = document.getElementById('user-id').value;
+            const idInput = document.getElementById('user-id').value.trim(); // 공백 제거 추가
             const pw = document.getElementById('user-pw').value;
 
+            // 아이디에 @가 없으면 자동으로 붙여주고, 있으면 그대로 사용
+            const email = idInput.includes('@') ? idInput : idInput + "@hkt.com";
+
             try {
-                const userCredential = await auth.signInWithEmailAndPassword(id + "@hkt.com", pw);
+                const userCredential = await auth.signInWithEmailAndPassword(email, pw);
                 const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
                 
                 if (userDoc.exists()) {
@@ -126,11 +129,15 @@
                     document.getElementById('user-rank-display').innerText = rankIcons[currentUser.rank] + " " + currentUser.rank;
                     
                     renderPosts(currentUser.job);
+                } else {
+                    alert("계정은 있으나 상세 정보가 없습니다. 다시 가입해주세요.");
                 }
             } catch (e) {
-                alert("로그인 실패! 아이디나 비번을 확인하세요.");
+                alert("로그인 실패! 아이디나 비번이 틀렸거나 가입되지 않은 계정입니다.");
             }
-        }
+        } // <--- 이 마지막 중괄호가 꼭 있어야 합니다!
+
+    
 
         // 맞춤형 글 목록 (예시 데이터)
         function renderPosts(job) {
