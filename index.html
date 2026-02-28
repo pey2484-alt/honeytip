@@ -1,159 +1,238 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>한꿀팁 - 꿀 한스푼의 지혜</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .bg-honey { background-color: #FFD700; }
-        .hidden { display: none; }
-        .honey-border { border: 4px solid black; }
-    </style>
+<meta charset="UTF-8">
+<title>🍯 한꿀팁 데모</title>
+<style>
+body {
+    margin:0;
+    font-family:'Noto Sans KR', sans-serif;
+    background:#FFF7C0;
+    color:#333;
+}
+.top{
+    background:#FFCA28;
+    color:#fff;
+    padding:15px;
+    text-align:center;
+    font-size:28px;
+    font-weight:bold;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+}
+.screen{
+    display:none;
+    padding:20px;
+}
+.show{display:block;}
+input, select, textarea, button{
+    width:90%;
+    margin:5px 0;
+    padding:10px;
+    border-radius:10px;
+    border:1px solid #FFD54F;
+    font-size:16px;
+}
+button{
+    background:#FFB300;
+    color:#fff;
+    border:none;
+    cursor:pointer;
+    box-shadow:0 4px 6px rgba(0,0,0,0.2);
+}
+button:hover{
+    background:#FFA000;
+}
+.post{
+    background:#fff;
+    padding:15px;
+    margin:10px 0;
+    border-radius:15px;
+    box-shadow:0 4px 6px rgba(0,0,0,0.1);
+}
+.bottom{
+    position:fixed;
+    bottom:0;
+    width:100%;
+    background:#FFCA28;
+    color:#fff;
+    display:flex;
+    justify-content:space-around;
+    padding:10px 0;
+    box-shadow:0 -4px 6px rgba(0,0,0,0.1);
+    font-weight:bold;
+}
+.bottom div{cursor:pointer;}
+.badge{
+    display:inline-block;
+    padding:3px 8px;
+    margin:0 3px;
+    border-radius:12px;
+    background:#FFD54F;
+    font-size:12px;
+    font-weight:bold;
+}
+</style>
 </head>
-<body class="bg-honey min-h-screen font-sans text-black">
+<body>
 
-    <div id="page-login" class="flex flex-col items-center justify-center min-h-screen p-6">
-        <div class="text-center mb-6">
-            <h1 class="text-4xl font-black italic">한꿀팁 🍯</h1>
-            <p class="text-sm font-bold mt-2 font-mono">"한꿀팁 한다~"</p>
-        </div>
+<div class="top">🍯 한꿀팁 데모</div>
 
-        <div class="w-full max-w-sm space-y-3 bg-white p-6 rounded-3xl honey-border shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
-            <input type="text" id="user-id" placeholder="아이디" class="w-full p-3 border-2 border-black rounded-xl">
-            <input type="password" id="user-pw" placeholder="비밀번호(6자 이상)" class="w-full p-3 border-2 border-black rounded-xl">
-            
-            <div class="py-2">
-                <label class="block font-black text-sm mb-2">직업을 선택하세요:</label>
-                <select id="user-job" class="w-full p-3 border-2 border-black rounded-xl bg-yellow-50 font-bold">
-                    <option value="초등학생">초등학생</option>
-                    <option value="중학생">중학생</option>
-                    <option value="고등학생">고등학생</option>
-                    <option value="대학생">대학생</option>
-                    <option value="직장인">직장인</option>
-                    <option value="결혼/육아">결혼/육아</option>
-                    <option value="취준생">취준생</option>
-                    <option value="은퇴 준비/후">은퇴 준비/후</option>
-                </select>
-            </div>
+<!-- 로그인 화면 -->
+<div id="login" class="screen show">
+    <h2>로그인</h2>
+    <input id="id" placeholder="아이디">
+    <input id="pw" placeholder="비밀번호" type="password">
+    <button onclick="login()">로그인하기</button>
+    <button onclick="join()">회원가입하기</button>
+    <br><br>
+    직업 선택:
+    <select id="job">
+        <option>초등학생</option>
+        <option>중학생</option>
+        <option>고등학생</option>
+        <option>대학생</option>
+        <option>직장인</option>
+        <option>결혼/육아</option>
+        <option>은퇴</option>
+        <option>취준생</option>
+    </select>
+    <p style="font-size:12px;color:#555;">선택한 직업에 따라 게시글이 추천됩니다.</p>
+</div>
 
-            <button onclick="handleLogin()" class="w-full bg-black text-white p-4 rounded-2xl font-black text-lg active:scale-95 transition">로그인하기</button>
-            <button onclick="handleSignUp()" class="w-full border-2 border-black p-3 rounded-2xl font-bold bg-white active:scale-95 transition">회원가입하기</button>
-        </div>
-    </div>
+<!-- 홈 화면 -->
+<div id="home" class="screen">
+    <h2>🏠 홈</h2>
+    <h3>🔥 인기 게시글</h3>
+    <div id="bestPosts">아직 인기글 없음</div>
 
-    <div id="main-app" class="hidden">
-        <header class="bg-white border-b-4 border-black p-4 flex justify-between items-center sticky top-0 z-50">
-            <span class="font-black italic text-xl">🍯 한꿀팁</span>
-            <span id="user-rank-display" class="font-bold text-sm bg-honey px-3 py-1 rounded-full border-2 border-black">🌸 아카시아</span>
-        </header>
+    <h3>🆕 최신글</h3>
+    <select id="jobFilter" onchange="drawPosts()">
+        <option>전체</option>
+        <option>초등학생</option>
+        <option>중학생</option>
+        <option>고등학생</option>
+        <option>대학생</option>
+        <option>직장인</option>
+        <option>결혼/육아</option>
+        <option>은퇴</option>
+        <option>취준생</option>
+    </select>
+    <div id="posts"></div>
+    <br><br><br>
+    <button onclick="help()">❓ 도움말</button>
+</div>
 
-        <div id="page-home" class="p-4 space-y-6">
-            <h2 class="text-xl font-black italic">✨ <span id="display-job">직업</span> 맞춤 꿀팁</h2>
-            <div id="post-list" class="space-y-4 pb-24">
-                </div>
-        </div>
+<!-- 글쓰기 -->
+<div id="write" class="screen">
+    <h2>글쓰기</h2>
+    <input id="title" placeholder="제목">
+    <textarea id="content" style="width:90%;height:200px;"></textarea>
+    <button onclick="addPost()">등록</button>
+</div>
 
-        <nav class="fixed bottom-0 w-full bg-white border-t-4 border-black h-20 flex justify-around items-center z-50">
-            <button onclick="location.reload()" class="flex flex-col items-center"><span class="text-2xl">🏠</span></button>
-            <button onclick="alert('게시판 준비 중!')" class="flex flex-col items-center"><span class="text-2xl">📋</span></button>
-            <button onclick="firebase.auth().signOut().then(()=>location.reload())" class="flex flex-col items-center"><span class="text-2xl">🚪</span><span class="text-[8px] font-bold">로그아웃</span></button>
-        </nav>
-    </div>
+<!-- 내정보 -->
+<div id="me" class="screen">
+    <h2>내정보</h2>
+    <div id="myname"></div>
+    <button onclick="logout()">로그아웃</button>
+</div>
 
-    <script>
-        // 보내주신 실제 설정값을 적용했습니다!
-        const firebaseConfig = {
-          apiKey: "AIzaSyCFsX__LeM3jGJ3pXsab_0rxJ5C1weoRHA",
-          authDomain: "honeytip-badb0.firebaseapp.com",
-          projectId: "honeytip-badb0",
-          storageBucket: "honeytip-badb0.firebasestorage.app",
-          messagingSenderId: "601225679455",
-          appId: "1:601225679455:web:a688bccc656bf1474681ea",
-          measurementId: "G-GGY0VYSWDB"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+<div class="bottom">
+    <div onclick="goHome()">홈</div>
+    <div onclick="goWrite()">+</div>
+    <div onclick="goMe()">내정보</div>
+</div>
 
-        let currentUser = null;
-        const rankIcons = { 아카시아: '🌸', 라벤더: '🪻', 로즈마리: '🌿', 유채: '🌼' };
+<script>
+let user=null;
+let posts=[];
 
-        // 가입 기능
-        async function handleSignUp() {
-            const id = document.getElementById('user-id').value;
-            const pw = document.getElementById('user-pw').value;
-            const job = document.getElementById('user-job').value;
+// 로그인/회원가입
+function login(){
+    user={id:document.getElementById("id").value, job:document.getElementById("job").value, tier:'아카시아'};
+    showHome();
+}
+function join(){ alert("회원가입 완료"); }
+function logout(){ showLogin(); }
 
-            if (!id || pw.length < 6) { alert("아이디 입력 및 비밀번호 6자 이상 필수!"); return; }
+// 화면 전환
+function hideAll(){
+    ['login','home','write','me'].forEach(id=>document.getElementById(id).classList.remove('show'));
+}
+function showLogin(){ hideAll(); document.getElementById('login').classList.add('show'); }
+function showHome(){ hideAll(); document.getElementById('home').classList.add('show'); drawPosts(); drawBest(); }
+function showWrite(){ hideAll(); document.getElementById('write').classList.add('show'); }
+function showMe(){ hideAll(); document.getElementById('me').classList.add('show'); document.getElementById('myname').innerHTML=`닉네임: 꿀벌${Math.floor(Math.random()*100)} (${user.tier})`; }
+function goHome(){ showHome(); }
+function goWrite(){ showWrite(); }
+function goMe(){ showMe(); }
 
-            try {
-                // 이메일 형식이 아니면 가입이 안되므로 임시로 붙임
-                const userCredential = await auth.createUserWithEmailAndPassword(id + "@hkt.com", pw);
-                await db.collection("users").doc(userCredential.user.uid).set({
-                    userId: id,
-                    job: job,
-                    rank: "아카시아",
-                    attendance: 0
-                });
-                alert("반가워요! 회원가입 성공! 이제 로그인하세요.");
-            } catch (e) {
-                if(e.code === "auth/email-already-in-use") alert("이미 있는 아이디예요!");
-                else alert("에러: " + e.message);
-            }
+// 게시글
+function addPost(){
+    let t=document.getElementById('title').value;
+    let c=document.getElementById('content').value;
+    posts.push({title:t, content:c, job:user.job, likes:0, comments:[], author:user.id});
+    showHome();
+}
+function drawPosts(){
+    let filter=document.getElementById('jobFilter').value;
+    let html='';
+    posts.forEach(p=>{
+        if(filter=='전체' || p.job==filter){
+            html+=`<div class="post">
+                    <h3>${p.title} <span class="badge">${p.job}</span></h3>
+                    <p>${p.content}</p>
+                    <p>👍 ${p.likes} | 💬 ${p.comments.length}</p>
+                    <button onclick="likePost('${p.title}')">좋아요</button>
+                    <button onclick="commentPost('${p.title}')">댓글</button>
+                </div>`;
         }
+    });
+    document.getElementById('posts').innerHTML=html;
+}
+function drawBest(){
+    let best=document.getElementById('bestPosts');
+    let sorted=[...posts].sort((a,b)=>b.likes-b.comments.length);
+    let html='';
+    sorted.slice(0,5).forEach(p=>{
+        html+=`<div class="post">
+                <h4>${p.title} <span class="badge">${p.job}</span></h4>
+                👍 ${p.likes} | 💬 ${p.comments.length}
+            </div>`;
+    });
+    best.innerHTML=html||'아직 인기글 없음';
+}
 
-                // 로그인 기능
-        async function handleLogin() {
-            const idInput = document.getElementById('user-id').value.trim(); // 공백 제거 추가
-            const pw = document.getElementById('user-pw').value;
+// 좋아요/댓글
+function likePost(title){
+    let p=posts.find(x=>x.title==title); if(p){p.likes++; drawPosts(); drawBest();}
+}
+function commentPost(title){
+    let comment=prompt("댓글 입력"); if(comment){
+        let p=posts.find(x=>x.title==title);
+        if(p){p.comments.push(comment); drawPosts(); drawBest();}
+    }
+}
 
-            // 아이디에 @가 없으면 자동으로 붙여주고, 있으면 그대로 사용
-            const email = idInput.includes('@') ? idInput : idInput + "@hkt.com";
+// 도움말
+function help(){
+    alert(`
+게시판 종류:
+- 일반: 누구나 이용 가능
+- 개꿀팁: 라벤더 이상
+- 찐꿀팁: 유채 이상
 
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, pw);
-                const userDoc = await db.collection("users").doc(userCredential.user.uid).get();
-                
-                if (userDoc.exists()) {
-                    currentUser = userDoc.data();
-                    alert("🍯 한꿀팁 한다~!");
-                    
-                    document.getElementById('page-login').classList.add('hidden');
-                    document.getElementById('main-app').classList.remove('hidden');
-                    document.getElementById('display-job').innerText = currentUser.job;
-                    document.getElementById('user-rank-display').innerText = rankIcons[currentUser.rank] + " " + currentUser.rank;
-                    
-                    renderPosts(currentUser.job);
-                } else {
-                    alert("계정은 있으나 상세 정보가 없습니다. 다시 가입해주세요.");
-                }
-            } catch (e) {
-                alert("로그인 실패! 아이디나 비번이 틀렸거나 가입되지 않은 계정입니다.");
-            }
-        } // <--- 이 마지막 중괄호가 꼭 있어야 합니다!
+등급:
+아카시아: 일반
+라벤더: 개꿀팁 보기
+로즈마리: 개꿀팁 쓰기
+유채: 찐꿀팁 보기
+밤: 찐꿀팁 쓰기
+두리안: 의뢰
+클로버: 판매
+`);
+}
+</script>
 
-    
-
-        // 맞춤형 글 목록 (예시 데이터)
-        function renderPosts(job) {
-            const list = document.getElementById('post-list');
-            const posts = [
-                { title: "초딩의 슬라임 관리법", job: "초등학생" },
-                { title: "직장인 연차 눈치 안보고 쓰는 법", job: "직장인" },
-                { title: "대학생 국가장학금 신청 팁", job: "대학생" },
-                { title: "은퇴 후 건강 관리 비법", job: "은퇴 준비/후" }
-            ];
-            
-            list.innerHTML = posts
-                .filter(p => p.job === job)
-                .map(p => `<div class="bg-white p-5 rounded-3xl border-4 border-black font-bold shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${p.title}</div>`)
-                .join('');
-        }
-    </script>
 </body>
 </html>
